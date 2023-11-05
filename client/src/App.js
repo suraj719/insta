@@ -1,22 +1,39 @@
 import "./App.css";
-import { Routes, Route, Navigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth/Auth";
 import Profile from "./pages/Profile/Profile";
 import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
 function App() {
+  const path = useLocation();
+  const loggedinTime = new Date(localStorage.getItem("loggedinTime"));
+   if(path.pathname!=="/auth") {
+    if(loggedinTime) {
+      setInterval(()=>{
+        const now = new Date();
+        const timeDifference = now - loggedinTime;
+        const minutesDifference = timeDifference / (1000 * 60);
+        console.log(minutesDifference)
+        if (minutesDifference > 10) {
+            localStorage.removeItem("loggedinTime");
+            localStorage.removeItem("store");
+            localStorage.removeItem("profile")
+            window.location.replace("http://localhost:3000/auth");
+        }
+      },60000)
+    }
+   }
   const user = useSelector((state) => state.authReducer.authData);
   return (
-    <div
-      className="App"
-      style={{
-        height:
-          window.location.href === "http://localhost:3000/chat"
-            ? "calc(100vh - 2rem)"
-            : "auto",
-      }}
-    >
+    <div className="App">
       <div className="blur" style={{ top: "-18%", right: "0" }}></div>
       <div className="blur" style={{ top: "36%", left: "-8rem" }}></div>
       <Routes>

@@ -8,27 +8,39 @@ import { reducers } from "../reducers";
 
 function saveToLocalStorage(store) {
   try {
-      const serializedStore = JSON.stringify(store);
-      window.localStorage.setItem('store', serializedStore);
-  } catch(e) {
-      console.log(e);
+    const now = new Date();
+    const loggedinTime = new Date(localStorage.getItem('loggedinTime'))
+    const timeDifference = now - loggedinTime;
+    const minutesDifference = timeDifference / (1000 * 60);
+    const serializedStore = JSON.stringify(store);
+    window.localStorage.setItem("store", serializedStore);
+    if (minutesDifference >= 0.3) {
+      localStorage.removeItem("store")
+      localStorage.removeItem("profile")
+    }
+  } catch (e) {
+    console.log(e);
   }
 }
 
 function loadFromLocalStorage() {
   try {
-      const serializedStore = window.localStorage.getItem('store');
-      if(serializedStore === null) return undefined;
-      return JSON.parse(serializedStore);
-  } catch(e) {
-      console.log(e);
-      return undefined;
+    const serializedStore = window.localStorage.getItem("store");
+    if (serializedStore === null) return undefined;
+    return JSON.parse(serializedStore);
+  } catch (e) {
+    console.log(e);
+    return undefined;
   }
 }
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const persistedState = loadFromLocalStorage();
 
-const store = createStore(reducers, persistedState, composeEnhancers(applyMiddleware(thunk)));
+const store = createStore(
+  reducers,
+  persistedState,
+  composeEnhancers(applyMiddleware(thunk))
+);
 
 store.subscribe(() => saveToLocalStorage(store.getState()));
 
